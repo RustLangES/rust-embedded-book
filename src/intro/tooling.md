@@ -60,7 +60,7 @@ Probe-rs es un software moderno, basado en Rust, diseñado para funcionar con de
 
 ### OpenOCD (Open On-Chip Debugger)
 
-OpenOCD es una herramienta de software de código abierto que se utiliza para depurar, probar y programar sistemas embebidos. Proporciona una interfaz entre el sistema host y el hardware embebido, compatible con diversas capas de transporte como JTAG y SWD (Serial Wire Debug). OpenOCD se integra con GDB, un depurador. OpenOCD      cuenta con un amplio soporte, documentación extensa y una gran comunidad, pero puede requerir una configuración compleja, especialmente para configuraciones embebidaspersonalizadas.
+OpenOCD es una herramienta de software de código abierto que se utiliza para depurar, probar y programar sistemas embebidos. Proporciona una interfaz entre el sistema host y el hardware embebido, compatible con diversas capas de transporte como JTAG y SWD (Serial Wire Debug). OpenOCD se integra con GDB, un depurador. OpenOCD cuenta con un amplio soporte, documentación extensa y una gran comunidad, pero puede requerir una configuración compleja, especialmente para configuraciones embebidas personalizadas.
 
 ## depuradores
 
