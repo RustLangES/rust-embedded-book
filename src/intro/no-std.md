@@ -31,7 +31,7 @@ Como se mencionó antes de usar [libstd](https://doc.rust-lang.org/std/) requier
 [libstd](https://doc.rust-lang.org/std/) No solo proporciona una forma común de acceder a las abstracciones del sistema operativo, sino que también proporciona un runtime.
 Este runtime, entre otras cosas, se encarga de configurar la protección contra desbordamientos de pila, procesar los argumentos de la línea de comandos y generar el hilo principal antes de que se invoque la función principal de un programa. Este runtime tampoco estará disponible en un entorno `no_std`.
 
-## Sumario
+## Resumen
 `#![no_std]` es un atributo de nivel de crate que indica que el crate se vinculara al core-crate en lugar de a el std-crate
 El crate [libcore](https://doc.rust-lang.org/core/) A su vez, es un subconjunto independiente de la plataforma del crate std.
 Lo cual no presupone nada sobre el sistema en el que se ejecutará el programa.
