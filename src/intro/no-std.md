@@ -45,7 +45,7 @@ como cargadores de arranque, firmware o kernels.
 
 | caracteristica                                            | no\_std | std |
 |-----------------------------------------------------------|--------|-----|
-| pila (memoria dinámica)                                   |   *    |  ✓  |
+| heap/monticulo (memoria dinámica)                                   |   *    |  ✓  |
 | colecciones (Vec, BTreeMap, etc)                          |  **    |  ✓  |
 | protección contra desbordamiento de pila                  |   ✘    |  ✓  |
 | ejecuta código de inicio antes de main                    |   ✘    |  ✓  |
