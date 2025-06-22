@@ -74,7 +74,7 @@ Los depuradores saben cómo:
  * Continuar la ejecución del MCU tras un evento de depuración.
  * Borrar y escribir en la memoria FLASH del microcontrolador.
 
-### extensión Probe-rs en Visual Studio Code 
+### Extensión Probe-rs en Visual Studio Code 
 
 Probe-rs cuenta con una extensión para Visual Studio Code que proporciona una experiencia de depuración fluida sin necesidad de una configuración compleja. Gracias a esta conexión, los desarrolladores pueden usar funciones específicas de Rust, como la impresión ordenada y los mensajes de error detallados, lo que garantiza que su proceso de depuración se integre con el ecosistema de Rust.
 
