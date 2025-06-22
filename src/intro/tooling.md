@@ -87,7 +87,7 @@ GDB es una herramienta de depuración versátil que permite a los desarrolladore
 
 Una sonda de hardware es un dispositivo utilizado en el desarrollo y la depuración de sistemas embebidos para facilitar la comunicación entre un ordenador host y el dispositivo embebido de destino. Normalmente admite protocolos como JTAG o SWD, lo que le permite programar, depurar y analizar el microcontrolador o microprocesador del sistema embebido. Las sondas de hardware son cruciales para que los desarrolladores establezcan puntos de interrupción, revisen el código e inspeccionen la memoria y los registros del procesador, lo que les permite diagnosticar y solucionar problemas en tiempo real.
 
-### Sonda Rusty
+### Rusty-probe
 
 Rusty-probe es una sonda de depuración de hardware basada en USB y de código abierto, diseñada para funcionar con probe-rs. La combinación de Rusty-Probe y probe-rs ofrece una solución fácil de usar y económica para desarrolladores que trabajan con aplicaciones Rust embebidas.
 
