@@ -1,13 +1,13 @@
 # Linux
 
-Here are the installation commands for a few Linux distributions.
+Aquí están los comandos de instalación para algunas distribuciones de Linux.
 
-## Packages
+## Paquetes
 
-- Ubuntu 18.04 or newer / Debian stretch or newer
+- Ubuntu 18.04 o mas reciente / Debian extendido o mas reciente
 
-> **NOTE** `gdb-multiarch` is the GDB command you'll use to debug your ARM
-> Cortex-M programs
+>**NOTA** `gdb-multiarch` es el comando GDB que usarás para depurar tus programas 
+> ARM Cortex-M.
 
 <!-- Debian stretch -->
 <!-- GDB 7.12 -->
@@ -25,8 +25,8 @@ sudo apt install gdb-multiarch openocd qemu-system-arm
 
 - Ubuntu 14.04 and 16.04
 
-> **NOTE** `arm-none-eabi-gdb` is the GDB command you'll use to debug your ARM
-> Cortex-M programs
+> **NOTA** `arm-none-eabi-gdb` es el comando GDB que usarás para depurar tus programas ARM
+> Cortex-M 
 
 <!-- Ubuntu 14.04 -->
 <!-- GDB 7.6 (!) -->
@@ -37,7 +37,7 @@ sudo apt install gdb-multiarch openocd qemu-system-arm
 sudo apt install gdb-arm-none-eabi openocd qemu-system-arm
 ```
 
-- Fedora 27 or newer
+- Fedora 27 o mas reciente
 
 <!-- Fedora 27 -->
 <!-- GDB 7.6 (!) -->
@@ -50,18 +50,18 @@ sudo dnf install gdb openocd qemu-system-arm
 
 - Arch Linux
 
-> **NOTE** `arm-none-eabi-gdb` is the GDB command you'll use to debug ARM
-> Cortex-M programs
+> **NOTA** `arm-none-eabi-gdb` es el comando GDB que usarás para depurar tus programas ARM
+> Cortex-M 
 
 ``` console
 sudo pacman -S arm-none-eabi-gdb qemu-system-arm openocd
 ```
 
-## udev rules
+## Reglas udev
 
-This rule lets you use OpenOCD with the Discovery board without root privilege.
+Esta regla le permite usar OpenOCD con la placa Discovery sin privilegios de root.
 
-Create the file `/etc/udev/rules.d/70-st-link.rules` with the contents shown below.
+Crea el archivo `/etc/udev/rules.d/70-st-link.rules` con el contenido que se muestra a continuación.
 
 ``` text
 # STM32F3DISCOVERY rev A/B - ST-LINK/V2
@@ -71,21 +71,21 @@ ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3748", TAG+="uaccess"
 ATTRS{idVendor}=="0483", ATTRS{idProduct}=="374b", TAG+="uaccess"
 ```
 
-Then reload all the udev rules with:
+Luego recargue todas las reglas udev con:
 
 ``` console
 sudo udevadm control --reload-rules
 ```
 
-If you had the board plugged to your laptop, unplug it and then plug it again.
+Si tenía la placa conectada a su computadora portátil, desconéctela y luego vuelva a conectarla.
 
-You can check the permissions by running this command:
+Puede comprobar los permisos ejecutando este comando:
 
 ``` console
 lsusb
 ```
 
-Which should show something like
+Lo cual debería mostrar algo como
 
 ```text
 (..)
@@ -93,8 +93,8 @@ Bus 001 Device 018: ID 0483:374b STMicroelectronics ST-LINK/V2.1
 (..)
 ```
 
-Take note of the bus and device numbers. Use those numbers to create a path like
-`/dev/bus/usb/<bus>/<device>`. Then use this path like so:
+Anote los números de bus y dispositivo. Use esos números para crear una ruta como `/dev/bus/usb/<bus>/<device>`.
+Luego, use esta ruta de la siguiente manera:
 
 ``` console
 ls -l /dev/bus/usb/001/018
@@ -113,10 +113,10 @@ user::rw-
 user:you:rw-
 ```
 
-The `+` appended to permissions indicates the existence of an extended
-permission. The `getfacl` command tells the user `you` can make use of
-this device.
+El signo `+`  añadido a los permisos indica la existencia de un permiso extendido.
+El comando `getfacl`  indica al usuario que `usted`  puede usar este dispositivo.
 
-Now, go to the [next section].
+Ahora, ve a la [siguiente sección].
 
-[next section]: verify.md
+[siguiente sección]: verify.md
+
