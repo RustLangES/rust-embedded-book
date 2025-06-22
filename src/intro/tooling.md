@@ -62,7 +62,7 @@ Probe-rs es un software moderno, basado en Rust, diseñado para funcionar con de
 
 OpenOCD es una herramienta de software de código abierto que se utiliza para depurar, probar y programar sistemas embebidos. Proporciona una interfaz entre el sistema host y el hardware embebido, compatible con diversas capas de transporte como JTAG y SWD (Serial Wire Debug). OpenOCD se integra con GDB, un depurador. OpenOCD cuenta con un amplio soporte, documentación extensa y una gran comunidad, pero puede requerir una configuración compleja, especialmente para configuraciones embebidas personalizadas.
 
-## depuradores
+## Depuradores
 
 Un depurador permite a los desarrolladores inspeccionar y controlar la ejecución de un programa para identificar y corregir errores. Ofrece funcionalidades como establecer puntos de interrupción, recorrer el código línea por línea y examinar los valores de las variables y los estados de memoria. Los depuradores son esenciales para un desarrollo y mantenimiento exhaustivos de software, ya que permiten a los desarrolladores garantizar que su código se comporte según lo previsto en diversas condiciones.
 
