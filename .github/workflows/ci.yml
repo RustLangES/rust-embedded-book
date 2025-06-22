@@ -1,56 +1,53 @@
-name: CI
+name: Deploy mdBook site to Pages
 
 on:
-  push: # Run CI for all branches except GitHub merge queue tmp branches
-    branches-ignore:
-    - "gh-readonly-queue/**"
-  pull_request: # Run CI for PRs on any branch
-  merge_group: # Run CI for the GitHub merge queue
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
+  # Build job
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-
+      - name: Install mdbook
+        run: |
+          mkdir bin
+          curl -sSL https://github.com/RustLangES/mdBook/releases/download/v0.4.36-localization-v0.6/mdbook-v0.4.36-localization-v0.6-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=bin
+          echo "$(pwd)/bin" >> ${GITHUB_PATH}
+      - name: Build with mdBook
+        run: mdbook build
       - name: Install Python dependencies
         run: |
           pip3 install --user python-dateutil linkchecker
       - name: Put pip binary directory into path
         run: echo "~/.local/bin" >> $GITHUB_PATH
-
-      - name: Cache Cargo installed binaries
-        uses: actions/cache@v4
-        id: cache-cargo
-        with:
-          path: ~/cargo-bin
-          key: cache-cargo
-      - name: Install mdbook
-        if: steps.cache-cargo.outputs.cache-hit != 'true'
-        uses: actions-rs/install@v0.1
-        with:
-          crate: mdbook
-          version: latest
-      - name: Copy mdbook to cache directory
-        if: steps.cache-cargo.outputs.cache-hit != 'true'
-        run: |
-          mkdir ~/cargo-bin
-          cp ~/.cargo/bin/mdbook ~/cargo-bin
-      - name: Put new cargo binary directory into path
-        run: echo "~/cargo-bin" >> $GITHUB_PATH
-
-      - name: Build book
-        run: mdbook build
-      - name: Test book
-        run: mdbook test
       - name: Check links
         run: linkchecker book
-
-      - name: Deploy book
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: book
-          force_orphan: true
+          path: ./book
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ./artifact --project-name=embedded
