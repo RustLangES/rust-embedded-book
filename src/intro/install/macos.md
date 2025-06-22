@@ -1,11 +1,11 @@
 # macOS
 
-All the tools can be installed using [Homebrew] or [MacPorts]:
+Todas las herramientas pueden ser instaladas usando [Homebrew] o [MacPorts]:
 
 [Homebrew]: http://brew.sh/
 [MacPorts]: https://www.macports.org/
 
-## Install tools with [Homebrew]
+## Instalar herramientas con [Homebrew]
 
 ``` text
 $ # GDB
@@ -18,12 +18,12 @@ $ # QEMU
 $ brew install qemu
 ```
 
-> **NOTE** If OpenOCD crashes you may need to install the latest version using: 
+> **NOTA** Si OpenOCD falla, es posible que necesites instalar la última versión usando:
 ```text
 $ brew install --HEAD openocd
 ```
 
-## Install tools with [MacPorts]
+## Instalar herramientas usando [MacPorts]
 
 ``` text
 $ # GDB
@@ -38,6 +38,6 @@ $ sudo port install qemu
 
 
 
-That's all! Go to the [next section].
+Todo esta instalado!, ve a la [siguiente sección].
 
-[next section]: verify.md
+[siguiente sección]: verify.md
