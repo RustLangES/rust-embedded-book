@@ -1,56 +1,53 @@
-# Installing the tools
+# Instalando las herramientas
 
-This page contains OS-agnostic installation instructions for a few of the tools:
+Esta página contiene instrucciones de instalación independientes del sistema operativo para algunas de las herramientas:
 
-### Rust Toolchain
+### Cadena de herramientas de Rust 
 
-Install rustup by following the instructions at [https://rustup.rs](https://rustup.rs).
+Instale rustup siguiendo las instrucciones en [https://rustup.rs](https://rustup.rs).
 
-**NOTE** Make sure you have a compiler version equal to or newer than `1.31`. `rustc
--V` should return a date newer than the one shown below.
+**NOTA** Asegúrate de tener una versión del compilador igual o más reciente que `1.31`. `rustc -V` debería devolver una fecha más reciente que la que se muestra a   
+continuación.
 
 ``` text
 $ rustc -V
 rustc 1.31.1 (b6c32da9b 2018-12-18)
 ```
 
-For bandwidth and disk usage concerns the default installation only supports
-native compilation. To add cross compilation support for the ARM Cortex-M
-architectures choose one of the following compilation targets. For the STM32F3DISCOVERY
-board used for the examples in this book, use the `thumbv7em-none-eabihf` target.
-[Find the best Cortex-M for you.](https://developer.arm.com/ip-products/processors/cortex-m#c-7d3b69ce-5b17-4c9e-8f06-59b605713133) 
+Por cuestiones de ancho de banda y uso de disco, la instalación predeterminada solo admite la compilación nativa. Para añadir compatibilidad con compilación cruzada para las arquitecturas ARM Cortex-M, elija uno de los siguientes destinos de compilación. Para la placa STM32F3DISCOVERY utilizada en los ejemplos de este libro, utilice el destino `thumbv7em-none-eabihf`.
+[Encuentra la mejor Cortex-M para ti.](https://developer.arm.com/ip-products/processors/cortex-m#c-7d3b69ce-5b17-4c9e-8f06-59b605713133) 
 
-Cortex-M0, M0+, and M1 (ARMv6-M architecture):
+Cortex-M0, M0+, and M1 (Arquitectura ARMv6-M):
 ``` console
 rustup target add thumbv6m-none-eabi
 ```
 
-Cortex-M3 (ARMv7-M architecture):
+Cortex-M3 (Arquitectura ARMv7-M):
 ``` console
 rustup target add thumbv7m-none-eabi
 ```
 
-Cortex-M4 and M7 without hardware floating point (ARMv7E-M architecture):
+Cortex-M4 y M7 sin hardware de punto flotante (Arquitectura ARMv7E-M):
 ``` console
 rustup target add thumbv7em-none-eabi
 ```
 
-Cortex-M4F and M7F with hardware floating point (ARMv7E-M architecture):
+Cortex-M4F y M7F con hardware de punto flotante (Arquitectura ARMv7E-M):
 ``` console
 rustup target add thumbv7em-none-eabihf
 ```
 
-Cortex-M23 (ARMv8-M architecture):
+Cortex-M23 (Arquitectura ARMv8-M):
 ``` console
 rustup target add thumbv8m.base-none-eabi
 ```
 
-Cortex-M33 and M35P (ARMv8-M architecture):
+Cortex-M33 y M35P (Arquitectura ARMv8-M):
 ``` console
 rustup target add thumbv8m.main-none-eabi
 ```
 
-Cortex-M33F and M35PF with hardware floating point (ARMv8-M architecture):
+Cortex-M33F y M35PF con hardware de punto flotante (Arquitectura ARMv8-M):
 ``` console
 rustup target add thumbv8m.main-none-eabihf
 ```
@@ -63,20 +60,20 @@ cargo install cargo-binutils
 
 rustup component add llvm-tools
 ```
-WINDOWS: prerequisite C++ Build Tools for Visual Studio 2019 is installed. https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16 
+WINDOWS: Es necesario tener instalado C++ Build Tools para Visual Studio 2019. https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16 
 ### `cargo-generate`
 
-We'll use this later to generate a project from a template.
+Usaremos esto más adelante para generar un proyecto a partir de una plantilla.
 
 ``` console
 cargo install cargo-generate
 ```
 
-Note: on some Linux distros (e.g. Ubuntu) you may need to install the packages `libssl-dev` and `pkg-config` prior to installing cargo-generate.
+Nota: en algunas distribuciones de Linux (por ejemplo, Ubuntu) es posible que necesites instalar los paquetes `libssl-dev` y `pkg-config` antes de instalar cargo-generate.
 
-### OS-Specific Instructions
+### Instrucciones especificas del sistema operativo
 
-Now follow the instructions specific to the OS you are using:
+Ahora siga las instrucciones específicas del sistema operativo que esté utilizando:
 
 - [Linux](install/linux.md)
 - [Windows](install/windows.md)
