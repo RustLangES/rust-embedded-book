@@ -69,7 +69,7 @@ jobs:
           curl -sSL https://github.com/catppuccin/mdBook/releases/download/v0.1.1/mdbook-catppuccin-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=bin
           echo "$(pwd)/bin" >> ${GITHUB_PATH}
       - name: Build with mdBook
-        run: mdbook build --language es
+        run: mdbook build
 
       # Deploy
       - name: Deploy
