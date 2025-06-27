@@ -18,7 +18,7 @@ more information and coordination
         - [MacOS](./intro/install/macos.md)
         - [Windows](./intro/install/windows.md)
         - [Verifica la instalación](./intro/install/verify.md)
-- [Getting started](./start/index.md)
+- [Empezando](./start/index.md)
   - [QEMU](./start/qemu.md)
   - [Hardware](./start/hardware.md)
   - [Memory-mapped Registers](./start/registers.md)
