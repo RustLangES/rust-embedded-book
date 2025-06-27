@@ -1,10 +1,6 @@
-# Getting Started
+# Empezando
 
-In this section we'll walk you through the process of writing, building,
-flashing and debugging embedded programs. You will be able to try most of the
-examples without any special hardware as we will show you the basics using
-QEMU, a popular open-source hardware emulator. The only section where hardware
-is required is, naturally enough, the [Hardware](./hardware.md) section,
-where we use OpenOCD to program an [STM32F3DISCOVERY].
+En esta sección, le guiaremos a través del proceso de escritura, compilación, flasheo y depuración de programas embebidos. Podrá probar la mayoría de los ejemplos sin hardware especial, ya que le mostraremos los conceptos básicos con QEMU, un popular emulador de hardware de código abierto. La única sección donde se requiere hardware es, por supuesto, la sección [Hardware](./hardware.md),
+donde usamos OpenOCD para programar una [STM32F3DISCOVERY].
 
 [STM32F3DISCOVERY]: http://www.st.com/en/evaluation-tools/stm32f3discovery.html
