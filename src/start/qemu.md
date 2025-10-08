@@ -1,34 +1,32 @@
 # QEMU
 
-We'll start writing a program for the [LM3S6965], a Cortex-M3 microcontroller.
-We have chosen this as our initial target because it [can be emulated](https://wiki.qemu.org/Documentation/Platforms/ARM#Supported_in_qemu-system-arm) using QEMU
-so you don't need to fiddle with hardware in this section and we can focus on
-the tooling and the development process.
+Comenzaremos a escribir un programa para el [LM3S6965], un microcontrolador Cortex-M3.
+Hemos elegido esto como nuestro objetivo inicial porque [puede ser emulado](https://wiki.qemu.org/Documentation/Platforms/ARM#Supported_in_qemu-system-arm) usando QEMU
+Así que no es necesario manipular el hardware en esta sección y podemos centrarnos en las herramientas y el proceso de desarrollo.
 
 [LM3S6965]: http://www.ti.com/product/LM3S6965
 
-**IMPORTANT**
-We'll use the name "app" for the project name in this tutorial.
-Whenever you see the word "app" you should replace it with the name you selected
-for your project. Or, you could also name your project "app" and avoid the
-substitutions.
+**IMPORTANTE**
+Usaremos el nombre "app" para el nombre del proyecto en este tutorial.
+Cada vez que veas la palabra "app", debes reemplazarla con el nombre que seleccionaste para tu proyecto.
+O bien, también podrías nombrar tu proyecto "app" y evitar las sustituciones.
 
-## Creating a non standard Rust program
+## Creando un programa Rust no estandar
 
-We'll use the [`cortex-m-quickstart`] project template to generate a new
-project from it. The created project will contain a barebone application: a good
-starting point for a new embedded rust application. In addition, the project will
-contain an `examples` directory, with several separate applications, highlighting
-some of the key embedded rust functionality. 
+Usaremos la plantilla del proyecto [`cortex-m-quickstart`] para generar un nuevo proyecto a partir de ella.
+El proyecto creado contendrá una aplicación básica: Un buen punto de partida para una nueva 
+aplicación de Rust embebido.
+ Además, el proyecto contendrá un directorio de ejemplos, con varias aplicaciones separadas, Destacando
+algunas de las principales funciones de Rust embebido.
 
 [`cortex-m-quickstart`]: https://github.com/rust-embedded/cortex-m-quickstart
 
-### Using `cargo-generate`
-First install cargo-generate
+### Usando `cargo-generate`
+Primero instala cargo-generate
 ```console
 cargo install cargo-generate
 ```
-Then generate a new project
+Luego genera un nuevo proyecto 
 ```console
 cargo generate --git https://github.com/rust-embedded/cortex-m-quickstart
 ```
@@ -43,16 +41,16 @@ cargo generate --git https://github.com/rust-embedded/cortex-m-quickstart
 cd app
 ```
 
-### Using `git`
+### Usando `git`
 
-Clone the repository
+Clona el repositorio
 
 ```console
 git clone https://github.com/rust-embedded/cortex-m-quickstart app
 cd app
 ```
 
-And then fill in the placeholders in the `Cargo.toml` file
+Y luego rellene los marcadores de posición en el archivo `Cargo.toml`
 
 ```toml
 [package]
@@ -69,9 +67,9 @@ test = false
 bench = false
 ```
 
-### Using neither
+### Usando neither
 
-Grab the latest snapshot of the `cortex-m-quickstart` template and extract it.
+Obtenga la última snapshot de la plantilla `cortex-m-quickstart` y extráigala.
 
 ```console
 curl -LO https://github.com/rust-embedded/cortex-m-quickstart/archive/master.zip
@@ -80,15 +78,13 @@ mv cortex-m-quickstart-master app
 cd app
 ```
 
-Or you can browse to [`cortex-m-quickstart`], click the green "Clone or
-download" button and then click "Download ZIP".
+O puedes navegar hasta [`cortex-m-quickstart`], Haga clic en el botón verde "Clonar o descargar" y luego haga clic en "Descargar ZIP".
 
-Then fill in the placeholders in the `Cargo.toml` file as done in the second
-part of the "Using `git`" version.
+Luego, complete los marcadores de posición en el archivo `Cargo.toml` como se hizo en la segunda parte de la versión "Usando `git`".
 
-## Program Overview
+## Descripción general del programa
 
-For convenience here are the most important parts of the source code in `src/main.rs`:
+Para mayor comodidad, aquí se encuentran las partes más importantes del código fuente. `src/main.rs`:
 
 ```rust,ignore
 #![no_std]
@@ -101,44 +97,38 @@ use cortex_m_rt::entry;
 #[entry]
 fn main() -> ! {
     loop {
-        // your code goes here
+        // tu código va aquí
     }
 }
 ```
 
-This program is a bit different from a standard Rust program so let's take a
-closer look.
+Este programa es un poco diferente de un programa Rust estándar, así que veámoslo más de cerca.
 
-`#![no_std]` indicates that this program will *not* link to the standard crate,
-`std`. Instead it will link to its subset: the `core` crate.
+`#![no_std]` indica que este programa *no* se vinculará al paquete estándar,
+`std`. En lugar de ello, se vinculará a su subconjunto: la crate "core".
 
-`#![no_main]` indicates that this program won't use the standard `main`
-interface that most Rust programs use. The main (no pun intended) reason to go
-with `no_main` is that using the `main` interface in `no_std` context requires
+`#![no_main]` Indica que este programa no utilizará la interfaz estandar`main`
+que la mayoría de los programas Rust usan. La razón principal para usar`no_main` es que usando la interfaz `main` en `no_std` El contexto requiere
 nightly.
 
-`use panic_halt as _;`. This crate provides a `panic_handler` that defines
-the panicking behavior of the program. We will cover this in more detail in the
-[Panicking](panicking.md) chapter of the book.
+`use panic_halt as _;`. Esta caja proporciona un `panic_handler` que define el comportamiento del programa en caso de panico. Lo explicaremos con más detalle en el capitulo del libro
+[Panico](panicking.md) 
 
-[`#[entry]`][entry] is an attribute provided by the [`cortex-m-rt`] crate that's used
-to mark the entry point of the program. As we are not using the standard `main`
-interface we need another way to indicate the entry point of the program and
-that'd be `#[entry]`.
+[`#[entry]`][entry] es un atributo proporcionado por la crate [`cortex-m-rt`] que se utiliza para marcar el punto de entrada del programa. Como no utilizamos la interfaz estándar`main`
+Necesitamos otra forma de indicar el punto de entrada del programa y esa sería `#[entry]`.
 
 [entry]: https://docs.rs/cortex-m-rt-macros/latest/cortex_m_rt_macros/attr.entry.html
 [`cortex-m-rt`]: https://crates.io/crates/cortex-m-rt
 
-`fn main() -> !`. Our program will be the *only* process running on the target
-hardware so we don't want it to end! We use a [divergent function](https://doc.rust-lang.org/rust-by-example/fn/diverging.html) (the `-> !`
-bit in the function signature) to ensure at compile time that'll be the case.
+`fn main() -> !`. Nuestro programa será el *único* proceso que se ejecuta en el hardware de destino, así que no queremos que finalice. Usamos una
+ [función divergente](https://doc.rust-lang.org/rust-by-example/fn/diverging.html), la parte -> ! en la firma de la función garantiza en tiempo de compilación que ese será el caso
 
-## Cross compiling
+## compilación cruzada
 
-The next step is to *cross* compile the program for the Cortex-M3 architecture.
-That's as simple as running `cargo build --target $TRIPLE` if you know what the
-compilation target (`$TRIPLE`) should be. Luckily, the `.cargo/config.toml` in the
-template has the answer:
+El siguiente paso es compilar de forma *cruzada* el programa para la arquitectura Cortex-M3.
+Eso es tan simple como correr `cargo build --target $TRIPLE`
+Si sabes cuál podria ser el target de compilación (`$TRIPLE`). 
+Afortunadamente, el  `.cargo/config.toml` en la plantilla tiene la respuesta:
 
 ```console
 tail -n6 .cargo/config.toml
@@ -146,43 +136,39 @@ tail -n6 .cargo/config.toml
 
 ```toml
 [build]
-# Pick ONE of these compilation targets
-# target = "thumbv6m-none-eabi"    # Cortex-M0 and Cortex-M0+
+# Elija UNO de estos targets de compilación
+# target = "thumbv6m-none-eabi"    # Cortex-M0 y Cortex-M0+
 target = "thumbv7m-none-eabi"    # Cortex-M3
-# target = "thumbv7em-none-eabi"   # Cortex-M4 and Cortex-M7 (no FPU)
-# target = "thumbv7em-none-eabihf" # Cortex-M4F and Cortex-M7F (with FPU)
+# target = "thumbv7em-none-eabi"   # Cortex-M4 y Cortex-M7 (sin FPU)
+# target = "thumbv7em-none-eabihf" # Cortex-M4F y Cortex-M7F (con FPU)
 ```
 
-To cross compile for the Cortex-M3 architecture we have to use
-`thumbv7m-none-eabi`. That target is not automatically installed when installing
-the Rust toolchain, it would now be a good time to add that target to the toolchain,
-if you haven't done it yet:
+Para realizar una compilación cruzada para la arquitectura Cortex-M3 tenemos que usar
+`thumbv7m-none-eabi`. Ese target no se instala automáticamente al instalar las herramientas de Rust. Si aún no lo has hecho, sería un buen momento para añadirlo.
 ``` console
 rustup target add thumbv7m-none-eabi
 ```
- Since the `thumbv7m-none-eabi` compilation target has been set as the default in 
- your `.cargo/config.toml` file, the two commands below do the same:
+Dado que el target de compilación `thumbv7m-none-eabi` se ha establecido como predeterminado en el archivo `.cargo/config.toml`, 
+los dos comandos siguientes hacen lo mismo:
 
 ```console
 cargo build --target thumbv7m-none-eabi
 cargo build
 ```
 
-## Inspecting
+## inspeccionando
 
-Now we have a non-native ELF binary in `target/thumbv7m-none-eabi/debug/app`. We
-can inspect it using `cargo-binutils`.
+Ahora tenemos un binario ELF no nativo en `target/thumbv7m-none-eabi/debug/app`. 
+Podemos inspeccionarlo usando `cargo-binutils`.
 
-With `cargo-readobj` we can print the ELF headers to confirm that this is an ARM
-binary.
-
+Con `cargo-readobj` podemos imprimir los headers ELF para confirmar que se trata de un binario ARM.
 ``` console
 cargo readobj --bin app -- --file-headers
 ```
 
-Note that:
-* `--bin app` is sugar for inspect the binary at `target/$TRIPLE/debug/app`
-* `--bin app` will also (re)compile the binary, if necessary
+Tenga en cuenta que:
+* `--bin app` es una forma abreviada de inspeccionar el binario en target/$TRIPLE/debug/app`
+* `--bin app` también (re)compilará el binario, si es necesario
 
 
 ``` text
@@ -208,13 +194,13 @@ ELF Header:
   Section header string table index: 18
 ```
 
-`cargo-size` can print the size of the linker sections of the binary.
+`cargo-size` puede imprimir el tamaño de las secciones del enlazador del binario.
 
 
 ```console
 cargo size --bin app --release -- -A
 ```
-we use `--release` to inspect the optimized version
+Usamos `--release` para inspeccionar la versión optimizada
 
 ``` text
 app  :
@@ -238,36 +224,33 @@ section             size        addr
 Total              14570
 ```
 
-> A refresher on ELF linker sections
+> Un repaso sobre las secciones de enlace ELF
 >
-> - `.text` contains the program instructions
-> - `.rodata` contains constant values like strings
-> - `.data` contains statically allocated variables whose initial values are
->   *not* zero
-> - `.bss` also contains statically allocated variables whose initial values
->   *are* zero
-> - `.vector_table` is a *non*-standard section that we use to store the vector
->   (interrupt) table
-> - `.ARM.attributes` and the `.debug_*` sections contain metadata and will
->   *not* be loaded onto the target when flashing the binary.
+> - `.text` contiene las instrucciones del programa
+> - `.rodata` contiene valores constantes como cadenas
+> - `.data` contiene variables asignadas estáticamente cuyos valores iniciales 
+>    *no* son cero
+> - `.bss` también contiene variables asignadas estáticamente cuyos valores iniciales
+>    *son* cero
+> - `.vector_table` es una sección *no* estándar que usamos para almacenar la tabla de 
+>    vectores (interrupciones)
+> -  Las secciones `.ARM.attributes` y `.debug_*` contienen metadatos y 
+>    *no* se cargarán en el destino al flashear el binario.
 
-**IMPORTANT**: ELF files contain metadata like debug information so their *size
-on disk* does *not* accurately reflect the space the program will occupy when
-flashed on a device. *Always* use `cargo-size` to check how big a binary really
-is.
+**IMPORTANTE**: Los archivos ELF contienen metadatos como información de depuración, por lo que su *tamaño en disco* no refleja con precisión el espacio que ocupará el programa al instalarse en un dispositivo. *Siempre* use `cargo-size` para comprobar el tamaño real de un binario.
 
-`cargo-objdump` can be used to disassemble the binary.
+`cargo-objdump` Se puede utilizar para desmontar el binario.
 
 ```console
 cargo objdump --bin app --release -- --disassemble --no-show-raw-insn --print-imm-hex
 ```
 
-> **NOTE** if the above command complains about `Unknown command line argument` see
-> the following bug report: https://github.com/rust-embedded/book/issues/269
+> **NOTA** Si el comando anterior indica un error de "Argumento de línea de comando desconocido",
+> consulte el siguiente informe de error:  
+> https://github.com/rust-embedded/book/issues/269
 
-> **NOTE** this output can differ on your system. New versions of rustc, LLVM
-> and libraries can generate different assembly. We truncated some of the instructions
-> to keep the snippet small.
+> **NOTA**: Esta salida puede variar según el sistema. Las nuevas versiones de rustc, LLVM y las bibliotecas
+> pueden generar diferentes ensamblados. Hemos truncado algunas instrucciones para que el fragmento sea pequeño.
 
 ```text
 app:  file format ELF32-arm-little
@@ -308,15 +291,14 @@ HardFault:
      663: <unknown>
 ```
 
-## Running
+## Funcionamiento
 
-Next, let's see how to run an embedded program on QEMU! This time we'll use the
-`hello` example which actually does something.
+A continuación, veamos cómo ejecutar un programa embebido en QEMU. Esta vez usaremos el ejemplo `hello`, que realmente hace algo.
 
-For convenience here's the source code of `examples/hello.rs`:
+Para mayor comodidad, aquí está el código fuente de `examples/hello.rs`:
 
 ```rust,ignore
-//! Prints "Hello, world!" on the host console using semihosting
+//¡Imprime "Hola, mundo!" en la consola del host usando semihosting
 
 #![no_main]
 #![no_std]
@@ -330,28 +312,27 @@ use cortex_m_semihosting::{debug, hprintln};
 fn main() -> ! {
     hprintln!("Hello, world!").unwrap();
 
-    // exit QEMU
-    // NOTE do not run this on hardware; it can corrupt OpenOCD state
+    // salir de QEMU
+    // NOTA no ejecute esto en el hardware; puede dañar el estado de OpenOCD
     debug::exit(debug::EXIT_SUCCESS);
 
     loop {}
 }
 ```
 
-This program uses something called semihosting to print text to the *host*
-console. When using real hardware this requires a debug session but when using
-QEMU this Just Works.
+Este programa usa un método llamado semihosting para imprimir texto en la consola del host.
+ Al usar hardware real, esto requiere una sesión de depuración, pero al usar QEMU, funciona perfectamente.
 
-Let's start by compiling the example:
+Comencemos compilando el ejemplo:
 
 ```console
 cargo build --example hello
 ```
 
-The output binary will be located at
+El binario de salida estará ubicado en
 `target/thumbv7m-none-eabi/debug/examples/hello`.
 
-To run this binary on QEMU run the following command:
+Para ejecutar este binario en QEMU, ejecute el siguiente comando:
 
 ```console
 qemu-system-arm \
@@ -366,8 +347,8 @@ qemu-system-arm \
 Hello, world!
 ```
 
-The command should successfully exit (exit code = 0) after printing the text. On
-*nix you can check that with the following command:
+El comando debería salir correctamente (código de salida = 0) después de imprimir el texto. 
+En *nix, puedes comprobarlo con el siguiente comando:
 
 ```console
 echo $?
@@ -377,32 +358,25 @@ echo $?
 0
 ```
 
-Let's break down that QEMU command:
+Analicemos ese comando QEMU:
 
-- `qemu-system-arm`. This is the QEMU emulator. There are a few variants of
-  these QEMU binaries; this one does full *system* emulation of *ARM* machines
-  hence the name.
+- `qemu-system-arm`. Este es el emulador QEMU. Existen algunas variantes de estos binarios QEMU; este realiza una emulación completa del *sistema* de máquinas *ARM*, de ahí su nombre.
 
-- `-cpu cortex-m3`. This tells QEMU to emulate a Cortex-M3 CPU. Specifying the
-  CPU model lets us catch some miscompilation errors: for example, running a
-  program compiled for the Cortex-M4F, which has a hardware FPU, will make QEMU
-  error during its execution.
+- `-cpu cortex-m3`. Esto le indica a QEMU que emule una CPU Cortex-M3. Especificar el modelo de CPU nos permite detectar algunos errores de compilación: por ejemplo, ejecutar un programa compilado para Cortex-M4F, que tiene una FPU de hardware, generará un error en QEMU durante su ejecución.
 
-- `-machine lm3s6965evb`. This tells QEMU to emulate the LM3S6965EVB, an
-  evaluation board that contains a LM3S6965 microcontroller.
+- `-machine lm3s6965evb`. Esto le indica a QEMU que emule el LM3S6965EVB, 
+una placa de evaluación que contiene un microcontrolador LM3S6965.
 
-- `-nographic`. This tells QEMU to not launch its GUI.
+- `-nographic`. Esto le indica a QEMU que no inicie su GUI.
 
-- `-semihosting-config (..)`. This tells QEMU to enable semihosting. Semihosting
-  lets the emulated device, among other things, use the host stdout, stderr and
-  stdin and create files on the host.
+- `-semihosting-config (..)`. Esto indica a QEMU que habilite el semihosting. 
+El semihosting permite al dispositivo emulado, entre otras cosas, usar la salida estándar del host, 
+la salida estándar del servidor y la entrada estándar del servidor, y crear archivos en el host.
 
-- `-kernel $file`. This tells QEMU which binary to load and run on the emulated
-  machine.
+- `-kernel $file`. Esto le indica a QEMU qué binario cargar y ejecutar en la máquina emulada.
 
-Typing out that long QEMU command is too much work! We can set a custom runner
-to simplify the process. `.cargo/config.toml` has a commented out runner that invokes
-QEMU; let's uncomment it:
+¡Escribir ese largo comando QEMU es demasiado trabajo! Podemos configurar un ejecutor personalizado para simplificar el proceso.
+ `.cargo/config.toml` tiene un ejecutor comentado que invoca QEMU; descomentémoslo:
 
 ```console
 head -n3 .cargo/config.toml
@@ -410,13 +384,12 @@ head -n3 .cargo/config.toml
 
 ```toml
 [target.thumbv7m-none-eabi]
-# uncomment this to make `cargo run` execute programs on QEMU
+# Descomente esto para hacer que `cargo run` ejecute programas en QEMU
 runner = "qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
 ```
 
-This runner only applies to the `thumbv7m-none-eabi` target, which is our
-default compilation target. Now `cargo run` will compile the program and run it
-on QEMU:
+Este ejecutor solo se aplica al target `thumbv7m-none-eabi`, que es nuestro target de compilación predeterminado. 
+Ahora `cargo run` compilará el programa y lo ejecutará en QEMU:
 
 ```console
 cargo run --example hello --release
@@ -429,21 +402,19 @@ cargo run --example hello --release
 Hello, world!
 ```
 
-## Debugging
+## Depuración
 
-Debugging is critical to embedded development. Let's see how it's done.
+La depuración es fundamental para el desarrollo integrado. Veamos cómo se realiza.
 
-Debugging an embedded device involves *remote* debugging as the program that we
-want to debug won't be running on the machine that's running the debugger
-program (GDB or LLDB).
+Depurar un dispositivo embebido implica una depuración remota, 
+ya que el programa que queremos depurar no estará ejecutándose en la máquina donde corre el depurador (GDB o LLDB).
 
-Remote debugging involves a client and a server. In a QEMU setup, the client
-will be a GDB (or LLDB) process and the server will be the QEMU process that's
-also running the embedded program.
+La depuración remota implica un cliente y un servidor. En una configuración QEMU, 
+el cliente será un proceso GDB (o LLDB) y el servidor será el proceso QEMU que también ejecuta el programa integrado.
 
-In this section we'll use the `hello` example we already compiled.
+En esta sección usaremos el ejemplo `hello` que ya compilamos.
 
-The first debugging step is to launch QEMU in debugging mode:
+El primer paso de depuración es iniciar QEMU en modo de depuración:
 
 ```console
 qemu-system-arm \
@@ -456,29 +427,25 @@ qemu-system-arm \
   -kernel target/thumbv7m-none-eabi/debug/examples/hello
 ```
 
-This command won't print anything to the console and will block the terminal. We
-have passed two extra flags this time:
+Este comando no imprimirá nada en la consola y bloqueará la terminal. 
+Esta vez, hemos pasado dos indicadores adicionales:
 
-- `-gdb tcp::3333`. This tells QEMU to wait for a GDB connection on TCP
-  port 3333.
+- `-gdb tcp::3333`. Esto le indica a QEMU que espere una conexión GDB en el puerto TCP 3333.
 
-- `-S`. This tells QEMU to freeze the machine at startup. Without this the
-  program would have reached the end of main before we had a chance to launch
-  the debugger!
+- `-S`. Esto le indica a QEMU que congele la máquina al iniciar. Sin esto, 
+el programa habría llegado al final del proceso principal antes de que pudiéramos iniciar el depurador.
 
-Next we launch GDB in another terminal and tell it to load the debug symbols of
-the example:
+A continuación, iniciamos GDB en otra terminal y le indicamos que cargue los símbolos de depuración del ejemplo:
 
 ```console
 gdb-multiarch -q target/thumbv7m-none-eabi/debug/examples/hello
 ```
 
-**NOTE**: you might need another version of gdb instead of `gdb-multiarch` depending
-on which one you installed in the installation chapter. This could also be
-`arm-none-eabi-gdb` or just `gdb`.
+**NOTA**: Es posible que necesite otra versión de gdb en lugar de `gdb-multiarch`, 
+según la que haya instalado en el capítulo de instalación. 
+También podría ser `arm-none-eabi-gdb` o simplemente `gdb`.
 
-Then within the GDB shell we connect to QEMU, which is waiting for a connection
-on TCP port 3333.
+Luego, dentro del shell GDB, nos conectamos a QEMU, que está esperando una conexión en el puerto TCP 3333.
 
 ```console
 target remote :3333
@@ -491,25 +458,25 @@ Reset () at $REGISTRY/cortex-m-rt-0.6.1/src/lib.rs:473
 ```
 
 
-You'll see that the process is halted and that the program counter is pointing
-to a function named `Reset`. That is the reset handler: what Cortex-M cores
-execute upon booting.
+Verás que el proceso se detiene y que el contador del programa apunta a una función llamada "Reset". 
+Este es el controlador de reinicio: lo que los núcleos Cortex-M ejecutan al arrancar.
 
->  Note that on some setup, instead of displaying the line `Reset () at $REGISTRY/cortex-m-rt-0.6.1/src/lib.rs:473` as shown above, gdb may print some warnings like : 
+>  Tenga en cuenta que en algunas configuraciones, en lugar de mostrar la línea `Reset () en $REGISTRY/cortex-m-rt-0.6.1/src/lib.rs:473` como se muestra arriba, gdb puede imprimir algunas advertencias como:
 >
 >`core::num::bignum::Big32x40::mul_small () at src/libcore/num/bignum.rs:254`
-> `    src/libcore/num/bignum.rs: No such file or directory.`
+> `    src/libcore/num/bignum.rs: No existe el archivo o directorio`
 > 
-> That's a known glitch. You can safely ignore those warnings, you're most likely at Reset(). 
+> Es un fallo conocido. Puedes ignorar esas advertencias sin problema; Lo más probable es que la ejecución se encuentre en Reset().
 
 
-This reset handler will eventually call our main function. Let's skip all the
-way there using a breakpoint and the `continue` command. To set the breakpoint, let's first take a look where we would like to break in our code, with the `list` command.
+Este controlador de reinicio llamará a nuestra función principal. 
+Vamos a saltarnos este paso usando un punto de interrupción y el comando `continue`. 
+Para establecer el punto de interrupción, primero veamos dónde queremos interrumpir nuestro código con el comando `list`.
 
 ```console
 list main
 ```
-This will show the source code, from the file examples/hello.rs. 
+Esto mostrará el código fuente, del archivo examples/hello.rs.
 
 ```text
 6       use panic_halt as _;
@@ -521,14 +488,14 @@ This will show the source code, from the file examples/hello.rs.
 12      fn main() -> ! {
 13          hprintln!("Hello, world!").unwrap();
 14
-15          // exit QEMU
+15          // salir de QEMU
 ```
-We would like to add a breakpoint just before the "Hello, world!", which is on line 13. We do that with the `break` command:
+Nos gustaría agregar un punto de interrupción antes de "¡Hola, mundo!", que está en la línea 13. Lo hacemos con el comando `break`:
 
 ```console
 break 13
 ```
-We can now instruct gdb to run up to our main function, with the `continue` command:
+Ahora podemos indicarle a gdb que se ejecute hasta nuestra función principal, con el comando `continue`:
 
 ```console
 continue
@@ -541,8 +508,7 @@ Breakpoint 1, hello::__cortex_m_rt_main () at examples\hello.rs:13
 13          hprintln!("Hello, world!").unwrap();
 ```
 
-We are now close to the code that prints "Hello, world!". Let's move forward
-using the `next` command.
+Ya estamos cerca del código que imprime "¡Hola mundo!". Avancemos con el comando `next`.
 
 ``` console
 next
@@ -552,15 +518,14 @@ next
 16          debug::exit(debug::EXIT_SUCCESS);
 ```
 
-At this point you should see "Hello, world!" printed on the terminal that's
-running `qemu-system-arm`.
+En este punto deberías ver "¡Hola, mundo!" impreso en la terminal que ejecuta `qemu-system-arm`.
 
 ```text
 $ qemu-system-arm (..)
 Hello, world!
 ```
 
-Calling `next` again will terminate the QEMU process.
+Llamar a `next` nuevamente finalizará el proceso QEMU.
 
 ```console
 next
@@ -570,7 +535,7 @@ next
 [Inferior 1 (Remote target) exited normally]
 ```
 
-You can now exit the GDB session.
+Ahora puede salir de la sesión GDB.
 
 ``` console
 quit
