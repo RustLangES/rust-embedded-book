@@ -144,7 +144,7 @@ Vamos a ver un ejemplo:
 #![no_std]
 #![no_main]
 
-use panic_halt as _; // Manipulador de panic
+use panic_halt as _; // panic handler
 
 use cortex_m_rt::entry;
 use tm4c123x_hal as hal;
