@@ -1,36 +1,36 @@
-# Memory Mapped Registers
+# Registros mapeados en memoria
 
-Embedded systems can only get so far by executing normal Rust code and moving data around in RAM. If we want to get any information into or out of our system (be that blinking an LED, detecting a button press or communicating with an off-chip peripheral on some sort of bus) we're going to have to dip into the world of Peripherals and their 'memory mapped registers'.
+Los sistemas embebidos solo pueden llegar hasta cierto punto ejecutando código Rust normal y moviendo datos en la RAM. Si queremos introducir o extraer información de nuestro sistema (ya sea parpadear un LED, detectar la pulsación de un botón o comunicarnos con un periférico externo a través de algún tipo de bus), tendremos que adentrarnos en el mundo de los periféricos y sus «registros mapeados en memoria».
 
-You may well find that the code you need to access the peripherals in your micro-controller has already been written, at one of the following levels:
+Es posible que descubra que el código que necesita para acceder a los periféricos de su microcontrolador ya está escrito en uno de los siguientes niveles:
 <p align="center">
 <img title="Common crates" src="../assets/crates.png">
 </p>
 
-* Micro-architecture Crate - This sort of crate handles any useful routines common to the processor core your microcontroller is using, as well as any peripherals that are common to all micro-controllers that use that particular type of processor core. For example the [cortex-m] crate gives you functions to enable and disable interrupts, which are the same for all Cortex-M based micro-controllers. It also gives you access to the 'SysTick' peripheral included with all Cortex-M based micro-controllers.
-* Peripheral Access Crate (PAC) - This sort of crate is a thin wrapper over the various memory-wrapper registers defined for your particular part-number of micro-controller you are using. For example, [tm4c123x] for the Texas Instruments Tiva-C TM4C123 series, or [stm32f30x] for the ST-Micro STM32F30x series. Here, you'll be interacting with the registers directly, following each peripheral's operating instructions given in your micro-controller's Technical Reference Manual.
-* HAL Crate - These crates offer a more user-friendly API for your particular processor, often by implementing some common traits defined in [embedded-hal]. For example, this crate might offer a `Serial` struct, with a constructor that takes an appropriate set of GPIO pins and a baud rate, and offers some sort of `write_byte` function for sending data. See the chapter on [Portability] for more information on [embedded-hal].
-* Board Crate - These crates go one step further than a HAL Crate by pre-configuring various peripherals and GPIO pins to suit the specific developer kit or board you are using, such as [stm32f3-discovery] for the STM32F3DISCOVERY board.
+* Crate de microarquitectura: Este tipo de crate gestiona las rutinas útiles comunes al core del procesador que utiliza el microcontrolador, así como los periféricos comunes a todos los microcontroladores que utilizan ese tipo de core. Por ejemplo, la crate [cortex-m] ofrece funciones para habilitar y deshabilitar interrupciones, las cuales son comunes para todos los microcontroladores basados ​​en Cortex-M. También permite acceder al periférico "SysTick" incluido con todos los microcontroladores basados ​​en Cortex-M.
+* Crate de Acceso a Periféricos (PAC): Este tipo de crate es una fina envoltura que cubre los diversos registros de memoria definidos para el número de pieza del microcontrolador que utiliza. Por ejemplo, [tm4c123x] para la serie Texas Instruments Tiva-C TM4C123, o [stm32f30x] para la serie ST-Micro STM32F30x. Aquí, interactuará directamente con los registros, siguiendo las instrucciones de funcionamiento de cada periférico que se encuentran en el Manual de Referencia Técnica de su microcontrolador.
+* Crate HAL: Estas crates ofrecen una API más intuitiva para su procesador, a menudo implementando características comunes definidas en [embedded-hal]. Por ejemplo, esta crate podría ofrecer una estructura `Serial`, con un constructor que toma un conjunto adecuado de pines GPIO y una velocidad en baudios, y ofrece algún tipo de función `write_byte` para enviar datos. Consulte el capítulo sobre [Portabilidad] para obtener más información sobre [embedded-hal].
+* Crate de placa: estas crates van un paso más allá que una crate HAL al preconfigurar varios periféricos y pines GPIO para adaptarse al kit de desarrollador o placa específica que esté utilizando, como [stm32f3-discovery] para la placa STM32F3DISCOVERY.
 
 [cortex-m]: https://crates.io/crates/cortex-m
 [tm4c123x]: https://crates.io/crates/tm4c123x
 [stm32f30x]: https://crates.io/crates/stm32f30x
 [embedded-hal]: https://crates.io/crates/embedded-hal
-[Portability]: ../portability/index.md
+[Portabilidad]: ../portability/index.md
 [stm32f3-discovery]: https://crates.io/crates/stm32f3-discovery
 [Discovery]: https://rust-embedded.github.io/discovery/
 
-## Board Crate
+## Crate de placa
 
-A board crate is the perfect starting point, if you're new to embedded Rust. They nicely abstract the HW details that might be overwhelming when starting studying this subject, and makes standard tasks easy, like turning a LED on or off. The functionality it exposes varies a lot between boards. Since this book aims at staying hardware agnostic, the board crates won't be covered by this book.
+Una crate de placa es el punto de partida perfecto si eres nuevo en Rust embebido. Abstrae de forma elegante los detalles de hardware que pueden resultar abrumadores al comenzar a estudiar este tema y facilita tareas habituales, como encender o apagar un LED. La funcionalidad que ofrece varía considerablemente entre placas. Dado que este libro se centra en la compatibilidad con hardware, no se abordarán las crate de placa.
 
-If you want to experiment with the STM32F3DISCOVERY board, it is highly recommended to take a look at the [stm32f3-discovery] board crate, which provides functionality to blink the board LEDs, access its compass, bluetooth and more. The [Discovery] book offers a great introduction to the use of a board crate.
+Si desea experimentar con la placa STM32F3DISCOVERY, le recomendamos encarecidamente que consulte la crate de placa [stm32f3-discovery], que permite hacer parpadear los LED de la placa, acceder a su brújula, Bluetooth y más. El libro [Discovery] ofrece una excelente introducción al uso de una crate de placa.
 
-But if you're working on a system that doesn't yet have dedicated board crate, or you need functionality not provided by existing crates, read on as we start from the bottom, with the micro-architecture crates.
+Pero si estás trabajando en un sistema que aún no tiene una crate de placa dedicada, o necesitas una funcionalidad que no ofrecen las crates existentes, continúa leyendo, ya que comenzamos desde abajo, con las crates de microarquitectura.
 
-## Micro-architecture crate
+## Crate de micro-architectura
 
-Let's look at the SysTick peripheral that's common to all Cortex-M based micro-controllers. We can find a pretty low-level API in the [cortex-m] crate, and we can use it like this:
+Analicemos el periférico SysTick, común a todos los microcontroladores basados ​​en Cortex-M. Encontramos una API de bajo nivel en el paquete [cortex-m], que podemos usar de la siguiente manera:
 
 ```rust,ignore
 #![no_std]
@@ -54,13 +54,13 @@ fn main() -> ! {
     loop {}
 }
 ```
-The functions on the `SYST` struct map pretty closely to the functionality defined by the ARM Technical Reference Manual for this peripheral. There's nothing in this API about 'delaying for X milliseconds' - we have to crudely implement that ourselves using a `while` loop. Note that we can't access our `SYST` struct until we have called `Peripherals::take()` - this is a special routine that guarantees that there is only one `SYST` structure in our entire program. For more on that, see the [Peripherals] section.
+Las funciones de la estructura `SYST` se corresponden con la funcionalidad definida en el Manual de Referencia Técnica de ARM para este periférico. Esta API no menciona el "retardo de X milisegundos"; debemos implementarlo nosotros mismos mediante un bucle `while`. Tenga en cuenta que no podemos acceder a nuestra estructura `SYST` hasta que hayamos llamado a `Peripherals::take()`; esta es una rutina especial que garantiza que solo haya una estructura `SYST` en todo el programa. Para más información, consulte la sección [Periféricos].
 
-[Peripherals]: ../peripherals/index.md
+[Periféricos]: ../peripherals/index.md
 
-## Using a Peripheral Access Crate (PAC)
+## Uso de una crate de acceso periférico (PAC)
 
-We won't get very far with our embedded software development if we restrict ourselves to only the basic peripherals included with every Cortex-M. At some point, we're going to need to write some code that's specific to the particular micro-controller we're using. In this example, let's assume we have an Texas Instruments TM4C123 - a middling 80MHz Cortex-M4 with 256 KiB of Flash. We're going to pull in the [tm4c123x] crate to make use of this chip.
+No avanzaremos mucho en el desarrollo de software embebido si nos limitamos a los periféricos básicos incluidos con cada Cortex-M. En algún momento, necesitaremos escribir código específico para el microcontrolador que usemos. En este ejemplo, supongamos que tenemos un Texas Instruments TM4C123, un Cortex-M4 de 80 MHz con 256 KiB de memoria Flash. Utilizaremos el crate [tm4c123x] para usar este chip.
 
 ```rust,ignore
 #![no_std]
@@ -78,10 +78,10 @@ pub fn init() -> (Delay, Leds) {
 
     let pwm = p.PWM0;
     pwm.ctl.write(|w| w.globalsync0().clear_bit());
-    // Mode = 1 => Count up/down mode
+    // Modo = 1 => Modo de conteo ascendente/descendente
     pwm._2_ctl.write(|w| w.enable().set_bit().mode().set_bit());
     pwm._2_gena.write(|w| w.actcmpau().zero().actcmpad().one());
-    // 528 cycles (264 up and down) = 4 loops per video line (2112 cycles)
+    // 528 ciclos (264 arriba y abajo) = 4 bucles por línea de video (2112 ciclos)
     pwm._2_load.write(|w| unsafe { w.load().bits(263) });
     pwm._2_cmpa.write(|w| unsafe { w.compa().bits(64) });
     pwm.enable.write(|w| w.pwm4en().set_bit());
@@ -89,35 +89,34 @@ pub fn init() -> (Delay, Leds) {
 
 ```
 
-We've accessed the `PWM0` peripheral in exactly the same way as we accessed the `SYST` peripheral earlier, except we called `tm4c123x::Peripherals::take()`. As this crate was auto-generated using [svd2rust], the access functions for our register fields take a closure, rather than a numeric argument. While this looks like a lot of code, the Rust compiler can use it to perform a bunch of checks for us, but then generate machine-code which is pretty close to hand-written assembler! Where the auto-generated code isn't able to determine that all possible arguments to a particular accessor function are valid (for example, if the SVD defines the register as 32-bit but doesn't say if some of those 32-bit values have a special meaning), then the function is marked as `unsafe`. We can see this in the example above when setting the `load` and `compa` sub-fields using the `bits()` function.
+Hemos accedido al periférico `PWM0` exactamente de la misma manera que accedimos al periférico `SYST` anteriormente, excepto que llamamos a `tm4c123x::Peripherals::take()`. Como este crate se generó automáticamente con [svd2rust], las funciones de acceso a nuestros campos de registro aceptan un closure, en lugar de un argumento numérico. Aunque esto parece mucho código, el compilador de Rust puede usarlo para realizar varias comprobaciones, generando código máquina que se asemeja bastante al ensamblador escrito a mano. Si el código generado automáticamente no puede determinar que todos los argumentos posibles para una función de acceso en particular son válidos (por ejemplo, si el SVD define el registro como de 32 bits, pero no indica si algunos de esos valores tienen un significado especial), la función se marca como `insegura`. Podemos ver esto en el ejemplo anterior al configurar los subcampos `load` y `compa` con la función `bits()`.
 
-### Reading
+### Leyendo
 
-The `read()` function returns an object which gives read-only access to the various sub-fields within this register, as defined by the manufacturer's SVD file for this chip. You can find all the functions available on special `R` return type for this particular register, in this particular peripheral, on this particular chip, in the [tm4c123x documentation][tm4c123x documentation R].
+La función `read()` devuelve un objeto que otorga acceso de solo lectura a los distintos subcampos de este registro, según lo definido en el archivo SVD del fabricante para este chip. Puede encontrar todas las funciones disponibles para el tipo de retorno `R` especial para este registro, en este periférico y en este chip en la [documentación de tm4c123x][documentación de tm4c123x R].
 
 ```rust,ignore
 if pwm.ctl.read().globalsync0().is_set() {
-    // Do a thing
+    // Hacer una cosa
 }
 ```
 
-### Writing
+### Escribiendo
 
-The `write()` function takes a closure with a single argument. Typically we call this `w`. This argument then gives read-write access to the various sub-fields within this register, as defined by the manufacturer's SVD file for this chip. Again, you can find all the functions available on the 'w' for this particular register, in this particular peripheral, on this particular chip, in the [tm4c123x documentation][tm4c123x Documentation W]. Note that all of the sub-fields that we do not set will be set to a default value for us - any existing content in the register will be lost.
-
+La función `write()` acepta un cierre con un solo argumento. Normalmente lo llamamos `w`. Este argumento otorga acceso de lectura y escritura a los distintos subcampos de este registro, según lo definido en el archivo SVD del fabricante para este chip. Puede encontrar todas las funciones disponibles en `w` para este registro, en este periférico y en este chip en la [documentación de tm4c123x][Documentación de tm4c123x W]. Tenga en cuenta que todos los subcampos que no configuremos se establecerán con un valor predeterminado; se perderá cualquier contenido existente en el registro.
 ```rust,ignore
 pwm.ctl.write(|w| w.globalsync0().clear_bit());
 ```
 
-### Modifying
+### Modificando
 
-If we wish to change only one particular sub-field in this register and leave the other sub-fields unchanged, we can use the `modify` function. This function takes a closure with two arguments - one for reading and one for writing. Typically we call these `r` and `w` respectively. The `r` argument can be used to inspect the current contents of the register, and the `w` argument can be used to modify the register contents.
+Si deseamos modificar solo un subcampo específico de este registro y dejar los demás sin cambios, podemos usar la función `modify`. Esta función acepta un closure con dos argumentos: uno para leer y otro para escribir. Normalmente, los llamamos `r` y `w`, respectivamente. El argumento `r` permite inspeccionar el contenido actual del registro y el argumento `w` permite modificarlo.
 
 ```rust,ignore
 pwm.ctl.modify(|r, w| w.globalsync0().clear_bit());
 ```
 
-The `modify` function really shows the power of closures here. In C, we'd have to read into some temporary value, modify the correct bits and then write the value back. This means there's considerable scope for error:
+La función `modify` realmente demuestra el poder de los closures. En C, tendríamos que leer un valor temporal, modificar los bits correctos y luego escribir el valor de vuelta. Esto significa que hay un margen de error considerable:
 
 ```C
 uint32_t temp = pwm0.ctl.read();
@@ -125,18 +124,18 @@ temp |= PWM0_CTL_GLOBALSYNC0;
 pwm0.ctl.write(temp);
 uint32_t temp2 = pwm0.enable.read();
 temp2 |= PWM0_ENABLE_PWM4EN;
-pwm0.enable.write(temp); // Uh oh! Wrong variable!
+pwm0.enable.write(temp); // ¡Oh oh! ¡Variable equivocada!
 ```
 
 [svd2rust]: https://crates.io/crates/svd2rust
-[tm4c123x documentation R]: https://docs.rs/tm4c123x/0.7.0/tm4c123x/pwm0/ctl/struct.R.html
-[tm4c123x documentation W]: https://docs.rs/tm4c123x/0.7.0/tm4c123x/pwm0/ctl/struct.W.html
+[documentación de tm4c123x R]: https://docs.rs/tm4c123x/0.7.0/tm4c123x/pwm0/ctl/struct.R.html
+[Documentación de tm4c123x W]: https://docs.rs/tm4c123x/0.7.0/tm4c123x/pwm0/ctl/struct.W.html
 
-## Using a HAL crate
+## Usando una crate HAL 
 
-The HAL crate for a chip typically works by implementing a custom Trait for the raw structures exposed by the PAC. Often this trait will define a function called `constrain()` for single peripherals or `split()` for things like GPIO ports with multiple pins. This function will consume the underlying raw peripheral structure and return a new object with a higher-level API. This API may also do things like have the Serial port `new` function require a borrow on some `Clock` structure, which can only be generated by calling the function which configures the PLLs and sets up all the clock frequencies. In this way, it is statically impossible to create a Serial port object without first having configured the clock rates, or for the Serial port object to misconvert the baud rate into clock ticks. Some crates even define special traits for the states each GPIO pin can be in, requiring the user to put a pin into the correct state (say, by selecting the appropriate Alternate Function Mode) before passing the pin into Peripheral. All with no run-time cost!
+La crate HAL de un chip suele funcionar implementando una característica personalizada para las estructuras sin procesar expuestas por el PAC. Esta característica suele definir una función llamada `constrain()` para periféricos individuales o `split()` para puertos GPIO con múltiples pines. Esta función consume la estructura sin procesar subyacente del periférico y devuelve un nuevo objeto con una API de nivel superior. Esta API también puede, por ejemplo, que la función `new` del puerto serie solicite un préstamo de alguna estructura `Clock`, que solo se puede generar llamando a la función que configura los PLL y configura todas las frecuencias de reloj. De esta forma, es estáticamente imposible crear un objeto de puerto serie sin haber configurado primero las velocidades de reloj, o que el objeto de puerto serie convierta erróneamente la velocidad en baudios a ticks de reloj. Algunas cajas incluso definen características especiales para los estados en los que puede estar cada pin GPIO, lo que requiere que el usuario configure un pin en el estado correcto (por ejemplo, seleccionando el modo de función alternativo adecuado) antes de pasarlo a Periférico. ¡Todo ello sin coste de tiempo de ejecución!
 
-Let's see an example:
+Vamos a ver un ejemplo:
 
 ```rust,ignore
 #![no_std]
@@ -155,42 +154,42 @@ fn main() -> ! {
     let p = hal::Peripherals::take().unwrap();
     let cp = hal::CorePeripherals::take().unwrap();
 
-    // Wrap up the SYSCTL struct into an object with a higher-layer API
+    // Envuelve la estructura SYSCTL en un objeto con una API de capa superior
     let mut sc = p.SYSCTL.constrain();
-    // Pick our oscillation settings
+    // Elija nuestra configuración de oscilación
     sc.clock_setup.oscillator = sysctl::Oscillator::Main(
         sysctl::CrystalFrequency::_16mhz,
         sysctl::SystemClock::UsePll(sysctl::PllOutputFrequency::_80_00mhz),
     );
-    // Configure the PLL with those settings
+    // Configure el PLL con esos ajustes
     let clocks = sc.clock_setup.freeze();
 
-    // Wrap up the GPIO_PORTA struct into an object with a higher-layer API.
-    // Note it needs to borrow `sc.power_control` so it can power up the GPIO
-    // peripheral automatically.
+    // Envuelve la estructura GPIO_PORTA en un objeto con una API de capa superior.
+    // Tenga en cuenta que necesita tomar prestado `sc.power_control` para poder 
+    // encender el periferico GPIO automáticamente.
     let mut porta = p.GPIO_PORTA.split(&sc.power_control);
 
-    // Activate the UART.
+    // Activar el UART.
     let uart = Serial::uart0(
         p.UART0,
-        // The transmit pin
+        // El pin de transmisión
         porta
             .pa1
             .into_af_push_pull::<hal::gpio::AF1>(&mut porta.control),
-        // The receive pin
+        // El pin de recepcion
         porta
             .pa0
             .into_af_push_pull::<hal::gpio::AF1>(&mut porta.control),
-        // No RTS or CTS required
+        // No RTS o CTS requerido
         (),
         (),
-        // The baud rate
+        // La velocidad de bauds 
         115200_u32.bps(),
-        // Output handling
+        // Manejo de salida
         NewlineMode::SwapLFtoCRLF,
-        // We need the clock rates to calculate the baud rate divisors
+        // Necesitamos las velocidades de reloj para calcular los divisores de la velocidad en bauds.
         &clocks,
-        // We need this to power up the UART peripheral
+        // Necesitamos esto para encender el periférico UART.
         &sc.power_control,
     );
 
