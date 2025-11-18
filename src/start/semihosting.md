@@ -1,14 +1,9 @@
-# Semihosting
+# Semialojamiento (Semihosting)
 
-Semihosting is a mechanism that lets embedded devices do I/O on the host and is
-mainly used to log messages to the host console. Semihosting requires a debug
-session and pretty much nothing else (no extra wires!) so it's super convenient
-to use. The downside is that it's super slow: each write operation can take
-several milliseconds depending on the hardware debugger (e.g. ST-Link) you use.
+El semihosting es un mecanismo que permite a los dispositivos embebidos realizar operaciones de E/S en el host y se utiliza principalmente para registrar mensajes en la consola del host. El semihosting requiere una sesión de depuración y prácticamente nada más (¡sin cables adicionales!), por lo que es muy práctico. La desventaja es su lentitud: cada operación de escritura puede tardar varios milisegundos, dependiendo del depurador de hardware que se utilice (por ejemplo, ST-Link).
 
-The [`cortex-m-semihosting`] crate provides an API to do semihosting operations
-on Cortex-M devices. The program below is the semihosting version of "Hello,
-world!":
+La crate [`cortex-m-semihosting`] crate proporciona una API para realizar operaciones de semihosting
+en dispositivos Cortex-M. El programa siguiente es la versión de semihosting de "¡Hola, mundo!":
 
 [`cortex-m-semihosting`]: https://crates.io/crates/cortex-m-semihosting
 
@@ -29,8 +24,7 @@ fn main() -> ! {
 }
 ```
 
-If you run this program on hardware you'll see the "Hello, world!" message
-within the OpenOCD logs.
+Si ejecutas este programa en hardware, verás el mensaje "¡Hola, mundo!" en los registros de OpenOCD.
 
 ``` text
 $ openocd
@@ -39,17 +33,15 @@ Hello, world!
 (..)
 ```
 
-You do need to enable semihosting in OpenOCD from GDB first:
+Primero debes habilitar el semihosting en OpenOCD desde GDB:
 ``` console
 (gdb) monitor arm semihosting enable
 semihosting is enabled
 ```
 
-QEMU understands semihosting operations so the above program will also work with
-`qemu-system-arm` without having to start a debug session. Note that you'll
-need to pass the `-semihosting-config` flag to QEMU to enable semihosting
-support; these flags are already included in the `.cargo/config.toml` file of the
-template.
+QEMU entiende las operaciones de semihosting, por lo que el programa anterior también funcionará con
+`qemu-system-arm` sin necesidad de iniciar una sesión de depuración. Tenga en cuenta que deberá pasar la opción `-semihosting-config` a QEMU para habilitar la compatibilidad con semihosting
+estas banderas ya están incluidas en el archivo `.cargo/config.toml` de la plantilla
 
 ``` text
 $ # this program will block the terminal
@@ -58,10 +50,8 @@ $ cargo run
 Hello, world!
 ```
 
-There's also an `exit` semihosting operation that can be used to terminate the
-QEMU process. Important: do **not** use `debug::exit` on hardware; this function
-can corrupt your OpenOCD session and you will not be able to debug more programs
-until you restart it.
+También existe una operación de semihosting `exit` que se puede usar para finalizar el proceso QEMU. Importante: **no** utilice `debug::exit` en hardware; esta función
+puede dañar su sesión de OpenOCD y no podrá depurar más programas hasta que reinicie la sesión.
 
 ```rust,ignore
 #![no_main]
@@ -94,12 +84,11 @@ $ echo $?
 1
 ```
 
-One last tip: you can set the panicking behavior to `exit(EXIT_FAILURE)`. This
-will let you write `no_std` run-pass tests that you can run on QEMU.
+Un último consejo: puedes configurar el comportamiento en caso de pánico a `exit(EXIT_FAILURE)`. Esto te permitirá escribir pruebas de ejecución y aprobación `no_std` que puedes ejecutar en QEMU.
 
-For convenience, the `panic-semihosting` crate has an "exit" feature that when
-enabled invokes `exit(EXIT_FAILURE)` after logging the panic message to the host
-stderr.
+Para mayor comodidad, la crate `panic-semihosting` tiene una función "exit" que cuando
+se activa, invoca `exit(EXIT_FAILURE)` después de registrar el mensaje de pánico en el
+stderr (salida de errores) del host.
 
 ```rust,ignore
 #![no_main]
@@ -130,16 +119,14 @@ panicked at 'assertion failed: `(left == right)`
 $ echo $?
 1
 ```
-
-**NOTE**: To enable this feature on `panic-semihosting`, edit your
-`Cargo.toml` dependencies section where `panic-semihosting` is specified with:
+**NOTA**: Para habilitar esta función en `panic-semihosting`, edite la sección de dependencias de su archivo `Cargo.toml` donde se especifica `panic-semihosting` con:
 
 ``` toml
 panic-semihosting = { version = "VERSION", features = ["exit"] }
 ```
 
-where `VERSION` is the version desired. For more information on dependencies
-features check the [`specifying dependencies`] section of the Cargo book.
+donde `VERSION` es la versión deseada. Para obtener más información sobre las dependencias, consulte la sección [`especificación de dependencias`] del libro de Cargo.
 
-[`specifying dependencies`]:
+[`especificación de dependencias`]:
 https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
+
