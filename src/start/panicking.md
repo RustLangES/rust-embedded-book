@@ -1,4 +1,4 @@
-# produciendo un pánico (Panicking)
+# Produciendo un pánico (Panicking)
 
 El pánico es una parte fundamental del lenguaje Rust. Las operaciones integradas, como la indexación,
 se someten a comprobaciones de seguridad de memoria en tiempo de ejecución. Cuando se intenta indexar fuera de los límites,
