@@ -24,7 +24,7 @@ more information and coordination
   - [Mapeo de registros de memoria](./start/registers.md)
   - [Semihosting](./start/semihosting.md)
   - [Produciendo el panico](./start/panicking.md)
-  - [Exceptions](./start/exceptions.md)
+  - [Excepciones](./start/exceptions.md)
   - [Interrupts](./start/interrupts.md)
   - [IO](./start/io.md)
 - [Peripherals](./peripherals/index.md)
