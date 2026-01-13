@@ -1,12 +1,10 @@
-# Exceptions
+# Excepciones
 
-Exceptions, and interrupts, are a hardware mechanism by which the processor
-handles asynchronous events and fatal errors (e.g. executing an invalid
-instruction). Exceptions imply preemption and involve exception handlers,
-subroutines executed in response to the signal that triggered the event.
+Las excepciones y las interrupciones son un mecanismo de hardware mediante el cual el procesador gestiona eventos asincrónicos y errores fatales 
+(por ejemplo, la ejecución de una instrucción no válida). Las excepciones implican preempción e involucran manejadores de excepciones, subrutinas 
+que se ejecutan en respuesta a la señal que desencadenó el evento.
 
-The `cortex-m-rt` crate provides an [`exception`] attribute to declare exception
-handlers.
+La crate`cortex-m-rt` proporciona un atributo [`exception`] para declarar controladores de excepciones.
 
 [`exception`]: https://docs.rs/cortex-m-rt-macros/latest/cortex_m_rt_macros/attr.exception.html
 
@@ -18,55 +16,49 @@ fn SysTick() {
 }
 ```
 
-Other than the `exception` attribute exception handlers look like plain
-functions but there's one more difference: `exception` handlers can *not* be
-called by software. Following the previous example, the statement `SysTick();`
-would result in a compilation error.
+Aparte del atributo `exception`, los manejadores de excepciones parecen funciones simples, pero hay una diferencia más: los manejadores de `exception` *no* pueden ser invocados por software. Siguiendo el ejemplo anterior, la instrucción `SysTick();` generaría un error de compilación.
 
-This behavior is pretty much intended and it's required to provide a feature:
-`static mut` variables declared *inside* `exception` handlers are *safe* to use.
+Este comportamiento es prácticamente intencionado y necesario para proporcionar una característica: las variables `static mut` declaradas *dentro* de los controladores de `excepciones` son *seguras* de usar.
 
 ``` rust,ignore
 #[exception]
 fn SysTick() {
     static mut COUNT: u32 = 0;
 
-    // `COUNT` has transformed to type `&mut u32` and it's safe to use
+    // `COUNT` Se ha transformado al tipo `&mut u32` y es seguro usarlo
     *COUNT += 1;
 }
 ```
 
-As you may know, using `static mut` variables in a function makes it
-[*non-reentrant*](https://en.wikipedia.org/wiki/Reentrancy_(computing)). It's undefined behavior to call a non-reentrant function,
-directly or indirectly, from more than one exception / interrupt handler or from
-`main` and one or more exception / interrupt handlers.
+Como sabrá, usar variables `static mut` en una función la convierte en [*no reentrante*](https://es.wikipedia.org/wiki/Reentrancia_(informática)). No está definido llamar a una función no reentrante, directa o indirectamente, desde más de un manejador de excepciones/interrupciones o desde `main` y uno o más manejadores de excepciones/interrupciones.
 
-Safe Rust must never result in undefined behavior so non-reentrant functions
-must be marked as `unsafe`. Yet I just told that `exception` handlers can safely
-use `static mut` variables. How is this possible? This is possible because
-`exception` handlers can *not* be called by software thus reentrancy is not
-possible. These handlers are called by the hardware itself which is assumed to be physically non-concurrent.
+Safe Rust nunca debe dar lugar a un comportamiento indefinido, por lo que las funciones no reentrantes
+deben marcarse como `unsafe`. Sin embargo, acabo de decir que los controladores de `exception` pueden utilizar con seguridad
+variables `static mut`. ¿Cómo es esto posible? Esto es posible porque
+los controladores de `exception` *no* pueden ser llamados por el software, por lo que la reentrada no es
+posible. Estos controladores son llamados por el propio hardware, que se supone que es físicamente no concurrente.
 
-As a result, in the context of exception handlers in embedded systems, the absence of concurrent invocations of the same handler ensures that there are no reentrancy issues, even if the handler uses static mutable variables.  
 
-In a multicore system, where multiple processor cores are executing code concurrently, the potential for reentrancy issues becomes relevant again, even within exception handlers. While each core may have its own set of exception handlers, there can still be scenarios where multiple cores attempt to execute the same exception handler simultaneously.  
-To address this concern in a multicore environment, proper synchronization mechanisms need to be employed within the exception handlers to ensure that access to shared resources is properly coordinated among the cores. This typically involves the use of techniques such as locks, semaphores, or atomic operations to prevent data races and maintain data integrity
+Como resultado, en el contexto de los controladores de excepciones en sistemas integrados, la ausencia de invocaciones concurrentes del mismo controlador garantiza que no haya problemas de reentrada, incluso si el controlador utiliza variables estáticas mutables.  
 
-> Note that the `exception` attribute transforms definitions of static variables
-> inside the function by wrapping them into `unsafe` blocks and providing us
-> with new appropriate variables of type `&mut` of the same name.
-> Thus we can dereference the reference via `*` to access the values of the variables without
-> needing to wrap them in an `unsafe` block.
+En un sistema multinúcleo, en el que varios núcleos de procesador ejecutan código simultáneamente, la posibilidad de que se produzcan problemas de reentrada vuelve a ser relevante, incluso dentro de los controladores de excepciones. Aunque cada núcleo puede tener su propio conjunto de controladores de excepciones, puede haber situaciones en las que varios núcleos intenten ejecutar el mismo controlador de excepciones al mismo tiempo.  
+Para abordar esta preocupación en un entorno multinúcleo, es necesario emplear mecanismos de sincronización adecuados dentro de los controladores de excepciones para garantizar que el acceso a los recursos compartidos se coordine correctamente entre los núcleos. Esto suele implicar el uso de técnicas como bloqueos, semáforos u operaciones atómicas para evitar conflictos de datos y mantener la integridad de los mismos.
 
-## A complete example
+>Tenga en cuenta que el atributo `exception` transforma las definiciones de las variables estáticas
+>dentro de la función envolviéndolas en bloques `unsafe` y proporcionándonos
+>nuevas variables apropiadas de tipo `&mut` con el mismo nombre.
+>De este modo, podemos desreferenciar la referencia mediante `*` para acceder a los valores de las variables sin
+>necesidad de envolverlas en un bloque `unsafe`.
 
-Here's an example that uses the system timer to raise a `SysTick` exception
-roughly every second. The `SysTick` exception handler keeps track of how many
-times it has been called in the `COUNT` variable and then prints the value of
-`COUNT` to the host console using semihosting.
+## Un ejemplo completo
 
-> **NOTE**: You can run this example on any Cortex-M device; you can also run it
-> on QEMU
+A continuación se muestra un ejemplo que utiliza el temporizador del sistema para generar una excepción `SysTick`
+aproximadamente cada segundo. El controlador de excepciones `SysTick` realiza un seguimiento del número de
+veces que se ha llamado en la variable `COUNT` y, a continuación, imprime el valor de
+`COUNT` en la consola del host mediante semihosting.
+
+> **NOTA**: Puede ejecutar este ejemplo en cualquier dispositivo Cortex-M; también puede ejecutarlo
+> en QEMU.
 
 ```rust,ignore
 #![deny(unsafe_code)]
@@ -89,9 +81,9 @@ fn main() -> ! {
     let p = cortex_m::Peripherals::take().unwrap();
     let mut syst = p.SYST;
 
-    // configures the system timer to trigger a SysTick exception every second
+    // configura el temporizador del sistema para que active una excepción SysTick cada segundo
     syst.set_clock_source(SystClkSource::Core);
-    // this is configured for the LM3S6965 which has a default CPU clock of 12 MHz
+    // Esto está configurado para el LM3S6965, que tiene una frecuencia de reloj de CPU predeterminada de 12 MHz.
     syst.set_reload(12_000_000);
     syst.clear_current();
     syst.enable_counter();
@@ -107,7 +99,7 @@ fn SysTick() {
 
     *COUNT += 1;
 
-    // Lazy initialization
+    // Inicialización diferida
     if STDOUT.is_none() {
         *STDOUT = hio::hstdout().ok();
     }
@@ -116,10 +108,10 @@ fn SysTick() {
         write!(hstdout, "{}", *COUNT).ok();
     }
 
-    // IMPORTANT omit this `if` block if running on real hardware or your
-    // debugger will end in an inconsistent state
+    // IMPORTANTE: omita este bloque «if» si se ejecuta en hardware real o su
+    // depurador terminará en un estado inconsistente.
     if *COUNT == 9 {
-        // This will terminate the QEMU process
+        // Esto terminará el proceso de QEMU.
         debug::exit(debug::EXIT_SUCCESS);
     }
 }
@@ -143,15 +135,15 @@ $ cargo run --release
 123456789
 ```
 
-If you run this on the Discovery board you'll see the output on the OpenOCD
-console. Also, the program will *not* stop when the count reaches 9.
+Si ejecuta esto en la placa Discovery, verá el resultado en la consola OpenOCD.
+Además, el programa *no* se detendrá cuando el recuento llegue a 9.
 
-## The default exception handler
+## El controlador de excepciones predeterminado
 
-What the `exception` attribute actually does is *override* the default exception
-handler for a specific exception. If you don't override the handler for a
-particular exception it will be handled by the `DefaultHandler` function, which
-defaults to:
+Lo que realmente hace el atributo `exception` es *anular* el controlador de excepciones predeterminado
+para una excepción específica. Si no se anula el controlador para una
+excepción concreta, esta será gestionada por la función `DefaultHandler`, cuyo
+valor predeterminado es:
 
 ``` rust,ignore
 fn DefaultHandler() {
@@ -159,43 +151,43 @@ fn DefaultHandler() {
 }
 ```
 
-This function is provided by the `cortex-m-rt` crate and marked as
-`#[no_mangle]` so you can put a breakpoint on "DefaultHandler" and catch
-*unhandled* exceptions.
+Esta función la proporciona el crate `cortex-m-rt` y está marcada como
+`#[no_mangle]`, por lo que puede colocar un punto de interrupción en "DefaultHandler" y capturar excepciones
+*no gestionadas*.
 
-It's possible to override this `DefaultHandler` using the `exception` attribute:
+Es posible anular este `DefaultHandler` utilizando el atributo `exception`:
 
 ``` rust,ignore
 #[exception]
 fn DefaultHandler(irqn: i16) {
-    // custom default handler
+    // controlador predeterminado personalizado
 }
 ```
 
-The `irqn` argument indicates which exception is being serviced. A negative
-value indicates that a Cortex-M exception is being serviced; and zero or a
-positive value indicate that a device specific exception, AKA interrupt, is
-being serviced.
+El argumento `irqn` indica qué excepción se está atendiendo. Un valor negativo
+indica que se está atendiendo una excepción Cortex-M; y un valor cero o
+positivo indica que se está atendiendo una excepción específica del dispositivo, también conocida como interrupción, está
+en proceso de reparación.
 
-## The hard fault handler
+## El controlador de fallos graves
 
-The `HardFault` exception is a bit special. This exception is fired when the
-program enters an invalid state so its handler can *not* return as that could
-result in undefined behavior. Also, the runtime crate does a bit of work before
-the user defined `HardFault` handler is invoked to improve debuggability.
+La excepción `HardFault` es un poco especial. Esta excepción se activa cuando el
+programa entra en un estado no válido, por lo que su controlador *no* puede regresar, ya que eso podría
+dar lugar a un comportamiento indefinido. Además, el crate de tiempo de ejecución realiza algunas tareas antes de
+que se invoque el controlador `HardFault` definido por el usuario para mejorar la capacidad de depuración.
 
-The result is that the `HardFault` handler must have the following signature:
-`fn(&ExceptionFrame) -> !`. The argument of the handler is a pointer to
-registers that were pushed into the stack by the exception. These registers are
-a snapshot of the processor state at the moment the exception was triggered and
-are useful to diagnose a hard fault.
+El resultado es que el controlador `HardFault` debe tener la siguiente firma:
+`fn(&ExceptionFrame) -> !`. El argumento del controlador es un puntero a
+los registros que la excepción introdujo en la pila. Estos registros son
+una instantánea del estado del procesador en el momento en que se activó la excepción y
+son útiles para diagnosticar un fallo grave.
 
-Here's an example that performs an illegal operation: a read to a nonexistent
-memory location.
+Aquí hay un ejemplo que realiza una operación ilegal: una lectura en una ubicación de memoria inexistente.
+memoria.
 
-> **NOTE**: This program won't work, i.e. it won't crash, on QEMU because
-> `qemu-system-arm -machine lm3s6965evb` doesn't check memory loads and will
-> happily return `0 `on reads to invalid memory.
+> **NOTA**: Este programa no funcionará, es decir, no se bloqueará, en QEMU porque
+> `qemu-system-arm -machine lm3s6965evb` no comprueba las cargas de memoria y
+> devolverá sin problemas `0` en las lecturas de memoria no válida.
 
 ```rust,ignore
 #![no_main]
@@ -211,7 +203,7 @@ use cortex_m_semihosting::hio;
 
 #[entry]
 fn main() -> ! {
-    // read a nonexistent memory location
+    // leer una ubicación de memoria inexistente
     unsafe {
         ptr::read_volatile(0x3FFF_0000 as *const u32);
     }
@@ -229,8 +221,8 @@ fn HardFault(ef: &ExceptionFrame) -> ! {
 }
 ```
 
-The `HardFault` handler prints the `ExceptionFrame` value. If you run this
-you'll see something like this on the OpenOCD console.
+El controlador `HardFault` imprime el valor `ExceptionFrame`. Si ejecuta esto,
+ verá algo como esto en la consola OpenOCD.
 
 ``` text
 $ openocd
@@ -247,10 +239,10 @@ ExceptionFrame {
 }
 ```
 
-The `pc` value is the value of the Program Counter at the time of the exception
-and it points to the instruction that triggered the exception.
+El valor `pc` es el valor del contador de programa en el momento de la excepción
+y apunta a la instrucción que la provocó.
 
-If you look at the disassembly of the program:
+Si observas el desensamblado del programa:
 
 
 ``` text
@@ -263,7 +255,7 @@ ResetTrampoline:
  800094c:       b       #-0x4 <ResetTrampoline+0xa>
 ```
 
-You can lookup the value of the program counter `0x0800094a` in the disassembly.
-You'll see that a load operation (`ldr r0, [r0]` ) caused the exception.
-The `r0` field of `ExceptionFrame` will tell you the value of register `r0`
-was `0x3fff_fffe` at that time.
+Puede buscar el valor del contador de programa `0x0800094a` en el desensamblado.
+Verá que una operación de carga (`ldr r0, [r0]`) provocó la excepción.
+El campo `r0` de `ExceptionFrame` le indicará que el valor del registro `r0`
+era `0x3fff_fffe` en ese momento.
